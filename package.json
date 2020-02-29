@@ -2,6 +2,7 @@
   "name": "jentor",
   "version": "0.1.0",
   "private": true,
+  "homedir": "/jentor",
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.4.0",
@@ -14,6 +15,7 @@
     "rcolor": "^2.0.2",
     "react": "^16.12.0",
     "react-chartjs-2": "^2.8.0",
+    "react-device-detect": "^1.11.14",
     "react-dom": "^16.12.0",
     "react-dropdown": "^1.6.4",
     "react-scripts": "3.3.0",
@@ -22,7 +24,7 @@
   },
   "scripts": {
     "start": "GENERATE_SOURCEMAP=false react-scripts start",
-    "build": "react-scripts build",
+    "build": "rm -rf docs && GENERATE_SOURCEMAP=false PUBLIC_URL=/jentor/ react-scripts --max_old_space_size=4097 build && mv build docs",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
