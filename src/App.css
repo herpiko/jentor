@@ -30,6 +30,12 @@
   color:grey;
 	padding-top:100px;
 }
+
+.App-demo {
+	width:90%;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
 @media screen and (max-width: 5000px) {
 	.App-howto {
 		width:50%;
@@ -40,7 +46,7 @@
 		text-align:center;
 		margin:0 auto;
 		padding:15px;
-		padding-bottom:50px;
+		padding-bottom:15px;
 	}
 }
 
@@ -57,6 +63,10 @@
 	}
 }
 
+.footer {
+	margin-bottom:50px;
+}
+
 .App-done-header {
   background-color: #33a7d6;
 	color:
@@ -69,11 +79,3 @@
   color: #61dafb;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}

@@ -2,9 +2,12 @@ import React from 'react';
 import pdfjsLib from 'pdfjs-dist/webpack';
 import spinner from './spinner.gif';
 import howtoImg from './howto.png';
+import spendingByCategoryImg from './spending_by_category.png';
+import spendingByCategoryPieImg from './spending_by_category_pie.png';
+import incomingOutgoingImg from './incoming_outgoing.png';
+import tableImg from './table.png';
 import async from 'async';
 import './App.css';
-import PouchDB from 'pouchdb';
 import sha256 from 'sha256';
 import 'react-tabulator/lib/styles.css';
 import 'tabulator-tables/dist/css/tabulator.min.css'; //import Tabulator stylesheet
@@ -13,6 +16,7 @@ import {defaults, Pie, Bar} from 'react-chartjs-2';
 import rcolor from 'rcolor';
 import Dropdown from 'react-dropdown';
 import {BrowserView, MobileView} from 'react-device-detect';
+import categories from './categories.js';
 import 'react-dropdown/style.css';
 
 window.pdfjsLib = pdfjsLib;
@@ -35,6 +39,7 @@ const defaultState = {
   done: false,
   tableViewEnabled: false,
   categorySpendingEnabled: false,
+  incomingOutgoingEnabled: false,
   monthMap: [
     'january',
     'februari',
@@ -49,66 +54,7 @@ const defaultState = {
     'november',
     'december',
   ],
-  jeniusCategories: [
-    'Account receivable',
-    'Additional Income',
-    'Allowance',
-    'Bonus',
-    'Books',
-    'Business profit',
-    'Cable TV',
-    'Cafe',
-    'Capital Gain',
-    'Cash withdrawal',
-    'Charity & donation',
-    'Children',
-    'Cinema',
-    'Cost & taxes',
-    'Credit Card',
-    'Doctor fee',
-    'Domestic helper',
-    'Drugs/ medicine',
-    'Education',
-    'Entertainment',
-    'Fashion',
-    'Food & Drinks',
-    'Gadget & electronics',
-    'Games',
-    'Gas',
-    'Gasoline',
-    'Gifts',
-    'Groceries',
-    'Hang out',
-    'Healthcare',
-    'Hobby',
-    'House & apartment rent',
-    'Housing',
-    'Income',
-    'Incoming',
-    'Insurance',
-    'Interest',
-    'Investment',
-    'Loans',
-    'Mobile & Internet',
-    'Others',
-    'Outgoing',
-    'Parking fee',
-    'Personal care',
-    'Pet',
-    'Refund',
-    'Reimbursment',
-    'Renovation',
-    'Restaurant',
-    'Salary',
-    'Savings',
-    'Sports',
-    'Top up card',
-    'Top up Wallet',
-    'Transportation',
-    'Utilities',
-    'Vehicle maintenance',
-    'Wedding',
-  ],
+  jeniusCategories: [],
   // Main data
   rows: [],
   columns: [
@@ -121,13 +67,24 @@ const defaultState = {
     {title: 'entityDetail', field: 'entityDetail'},
     {title: 'amount', field: 'amount'},
   ],
-  pieData: {
+  spendingByCategoryDataCurrentRange: 'all',
+  spendingByCategoryData: {
     all: {
       datasets: [{data: [], backgroundColor: []}],
       labels: [],
     },
   },
-  pieDataCurrentRange: 'all',
+  incomingOutgoingDataCurrentRange: 'all',
+  incomingOutgoingData: {
+    all: {
+      datasets: [{data: [], backgroundColor: []}],
+      labels: [],
+    },
+  },
+  incomingOutgoingStackedData: {
+    datasets: [{data: [], backgroundColor: []}, {data: [], backgroundColor: []}],
+    labels: [],
+  },
   timeRangeKeys: [],
   spendingByCategoryChartType: 'Pie',
   chartTypes: ['Pie', 'Bar'],
@@ -139,10 +96,10 @@ class App extends React.Component {
     this.state = {};
   }
   componentDidMount = () => {
-    new PouchDB('jentor').destroy().then(() => {
-      window.db = new PouchDB('jentor');
-      this.setState(defaultState);
-    });
+    defaultState.jeniusCategories = categories.incomingCategories.concat(
+      categories.outgoingCategories,
+    );
+    this.setState(defaultState);
   };
   renderToText = pageData => {
     return new Promise((resolve, reject) => {
@@ -345,6 +302,7 @@ class App extends React.Component {
             rows: result,
             tableViewEnabled: true,
             categorySpendingEnabled: true,
+            incomingOutgoingEnabled: true,
           },
           () => {
             this.processChart();
@@ -355,7 +313,6 @@ class App extends React.Component {
   };
 
   processChart = () => {
-    let pieData = [];
     let cat = {all: {}};
     let end = new Date(this.state.rows[0].dateTime);
     let beginning = new Date(
@@ -414,39 +371,136 @@ class App extends React.Component {
       let currentRange =
         dateTime.getFullYear() + '_' + this.state.monthMap[dateTime.getMonth()];
       if (this.state.rows[i].mutationType === 'credit') {
-        cat.all[this.state.rows[i].category] += this.state.rows[i].amount;
-        cat[currentRange][this.state.rows[i].category] += this.state.rows[
-          i
-        ].amount;
+        cat.all['totalOutgoing'] = cat.all['totalOutgoing'] || 0;
+        cat.all['totalOutgoing'] += this.state.rows[i].amount;
+        cat[currentRange]['totalOutgoing'] =
+          cat[currentRange]['totalOutgoing'] || 0;
+        cat[currentRange]['totalOutgoing'] += this.state.rows[i].amount;
       } else {
-        cat.all[this.state.rows[i].category] -= this.state.rows[i].amount;
-        cat[currentRange][this.state.rows[i].category] -= this.state.rows[
-          i
-        ].amount;
+        cat.all['totalIncoming'] = cat.all['totalIncoming'] || 0;
+        cat.all['totalIncoming'] += this.state.rows[i].amount;
+        cat[currentRange]['totalIncoming'] =
+          cat[currentRange]['totalIncoming'] || 0;
+        cat[currentRange]['totalIncoming'] += this.state.rows[i].amount;
       }
+      cat.all[this.state.rows[i].category] += this.state.rows[i].amount;
+      cat[currentRange][this.state.rows[i].category] += this.state.rows[
+        i
+      ].amount;
     }
-    let data = {
+    // Init
+    let spendingByCategoryData = {
       all: {
         datasets: [{data: [], backgroundColor: []}],
         labels: [],
       },
     };
-    let blankData = JSON.parse(JSON.stringify(data.all));
+    let incomingOutgoingData = {
+      all: {
+        datasets: [{data: [], backgroundColor: []}],
+        labels: [],
+      },
+    };
+    let incomingOutgoingStackedData = {
+      datasets: [
+        {data: [], backgroundColor: []},
+        {data: [], backgroundColor: []},
+      ],
+      labels: [],
+    };
+    let blankData = JSON.parse(JSON.stringify(spendingByCategoryData.all));
     let catKeys = Object.keys(cat.all);
     for (let i in catKeys) {
+      console.log(catKeys[i]); // category
       let keys = Object.keys(cat);
+
       for (let j in keys) {
-        data[keys[j]] = data[keys[j]] || JSON.parse(JSON.stringify(blankData));
-        if (cat[keys[j]][catKeys[i]] > 0) {
+        //console.log('-------------------------')
+        //console.log(keys[j]) // month
+        //console.log(catKeys[i]) // category
+        //console.log(cat[keys[j]][catKeys[i]]) //value
+
+        // Spending by category
+        spendingByCategoryData[keys[j]] =
+          spendingByCategoryData[keys[j]] ||
+          JSON.parse(JSON.stringify(blankData));
+        if (
+          cat[keys[j]][catKeys[i]] > 0 &&
+          // Ignore total incoming and total outgoing
+          catKeys[i] !== 'totalIncoming' &&
+          catKeys[i] !== 'totalOutgoing'
+        ) {
           let color = rcolor();
-          data[keys[j]].datasets[0].data.push(cat[keys[j]][catKeys[i]]);
-          data[keys[j]].datasets[0].backgroundColor.push(color);
-          data[keys[j]].labels.push(catKeys[i]);
+          spendingByCategoryData[keys[j]].datasets[0].data.push(
+            cat[keys[j]][catKeys[i]],
+          );
+          spendingByCategoryData[keys[j]].datasets[0].backgroundColor.push(
+            color,
+          );
+          spendingByCategoryData[keys[j]].labels.push(catKeys[i]);
+        }
+        // Incoming vs outgoing
+        incomingOutgoingData[keys[j]] =
+          incomingOutgoingData[keys[j]] ||
+          JSON.parse(JSON.stringify(blankData));
+        if (incomingOutgoingData[keys[j]].labels.length < 2) {
+          incomingOutgoingData[keys[j]].datasets[0].backgroundColor.push(
+            'green',
+          );
+          incomingOutgoingData[keys[j]].labels.push('Incoming');
+          incomingOutgoingData[keys[j]].datasets[0].data[0] = 0;
+          incomingOutgoingData[keys[j]].datasets[0].backgroundColor.push('red');
+          incomingOutgoingData[keys[j]].labels.push('Outgoing');
+          incomingOutgoingData[keys[j]].datasets[0].data[1] = 0;
+        }
+        if (catKeys[i] === 'totalIncoming') {
+          let value = cat[keys[j]][catKeys[i]] || 0;
+          value += cat[keys[j]][catKeys[i]];
+          incomingOutgoingData[keys[j]].datasets[0].data[0] = value;
+        } else if (catKeys[i] === 'totalOutgoing') {
+          let value = incomingOutgoingData[keys[j]].datasets[0].data[1] || 0;
+          value += cat[keys[j]][catKeys[i]];
+          incomingOutgoingData[keys[j]].datasets[0].data[1] = value;
+        }
+
+        // Incoming vs outgoing, stacked
+        if (
+          incomingOutgoingStackedData.labels.indexOf(keys[j]) < 0 &&
+          keys[j] !== 'all'
+        ) {
+          incomingOutgoingStackedData.labels.push(keys[j]);
+        }
+        incomingOutgoingStackedData.datasets[0].label =
+          incomingOutgoingStackedData.datasets[0].label || 'Incoming';
+        incomingOutgoingStackedData.datasets[0].backgroundColor = 'deepskyblue';
+        if (
+          catKeys[i] === 'totalIncoming' &&
+          cat[keys[j]][catKeys[i]] &&
+          parseInt(cat[keys[j]][catKeys[i]], 10) > 0
+        ) {
+          incomingOutgoingStackedData.datasets[0].data.push(
+            parseInt(cat[keys[j]][catKeys[i]], 10),
+          );
+        }
+        incomingOutgoingStackedData.datasets[1].label =
+          incomingOutgoingStackedData.datasets[1].label || 'Outgoing';
+        incomingOutgoingStackedData.datasets[1].backgroundColor = 'maroon';
+        if (
+          catKeys[i] === 'totalOutgoing' &&
+          cat[keys[j]][catKeys[i]] &&
+          parseInt(cat[keys[j]][catKeys[i]], 10) > 0
+        ) {
+          let out = parseInt(cat[keys[j]][catKeys[i]], 10);
+          out = 0 - out;
+          incomingOutgoingStackedData.datasets[1].data.push(out);
         }
       }
     }
+    console.log(incomingOutgoingStackedData);
     this.setState({
-      pieData: data,
+      spendingByCategoryData: spendingByCategoryData,
+      incomingOutgoingData: incomingOutgoingData,
+      incomingOutgoingStackedData: incomingOutgoingStackedData,
       loading: false,
       done: true,
     });
@@ -467,7 +521,7 @@ class App extends React.Component {
     return (
       <div className="App">
         {this.state.loading && (
-          <div style={{marginTop:'40vh'}}>
+          <div style={{marginTop: '40vh'}}>
             <img src={spinner} className="App-logo" alt="logo" />
           </div>
         )}
@@ -492,7 +546,43 @@ class App extends React.Component {
                     marginTop: '-115px',
                   }}></div>
                 <div className="App-secondary-landing">
-                  <img src={howtoImg} className="App-howto" alt="howto" />
+                  <h2>How to</h2>
+                  <img
+                    src={howtoImg}
+                    className="App-howto"
+                    alt="howto"
+                    style={{marginBottom: 15}}
+                  />
+                  <br/>
+                  <h2>Screenshots</h2>
+                  <img
+                    src={spendingByCategoryImg}
+                    className="App-demo"
+                    alt="howto"
+                    style={{marginBottom: 15}}
+                  />
+                  <br/>
+                  <img
+                    src={spendingByCategoryPieImg}
+                    className="App-demo"
+                    alt="howto"
+                    style={{marginBottom: 15}}
+                  />
+                  <br/>
+                  <img
+                    src={incomingOutgoingImg}
+                    className="App-demo"
+                    alt="howto"
+                    style={{marginBottom: 15}}
+                  />
+                  <br/>
+                  <img
+                    src={tableImg}
+                    className="App-demo"
+                    alt="howto"
+                    style={{marginBottom: 50}}
+                  />
+                  <br/>
                   <div className="disclaimer">
                     Jentor was originally an unsuccessful submission for{' '}
                     <a href="https://www.cocreate.id/cocreation-week-2020/hackathon/">
@@ -502,20 +592,30 @@ class App extends React.Component {
                     <a href="https://github.com/herpiko/jentor/blob/master/jentor.pdf">
                       our proposal here
                     </a>
-                    .
+                    . This is still a work-in-progress and may contains bugs. Also there is no
+                    guarantee that the parser will always work as expected. If
+                    Jenius decided to change the PDF layout or column of the
+                    report then Jentor may fail.
                   </div>
                   <div className="disclaimer">
                     Our app does not and will not upload the PDF file to the
                     cloud. Your document will be parsed and processed in the
                     app/browser itself, hence zero user data will be out from
                     your device. We know and fully understand about privacy.
-                    <br />
-                    <br />
                     Unsure? Check our{' '}
                     <a href="https://github.com/herpiko/jentor">
                       source code here
                     </a>
                     .
+                  </div>
+                  <div className="disclaimer footer">
+                    Made in rush with &lt;3.
+                    <br />
+                    <br />
+                    <span style={{fontSize: 11}}>
+                      Jenius is a trademark or a registered trademark of PT.
+                      Bank Tabungan Pensiunan Nasional
+                    </span>
                   </div>
                 </div>
               </div>
@@ -543,14 +643,20 @@ class App extends React.Component {
                 options={this.state.timeRangeKeys}
                 placeHolder="All (from beginning)"
                 onChange={selected => {
-                  this.setState({pieDataCurrentRange: selected.value});
+                  this.setState({
+                    spendingByCategoryDataCurrentRange: selected.value,
+                  });
                 }}
-                value={this.state.pieDataCurrentRange}
+                value={this.state.spendingByCategoryDataCurrentRange}
               />
             </div>
             {this.state.spendingByCategoryChartType === 'Pie' && (
               <Pie
-                data={this.state.pieData[this.state.pieDataCurrentRange]}
+                data={
+                  this.state.spendingByCategoryData[
+                    this.state.spendingByCategoryDataCurrentRange
+                  ]
+                }
                 width={500}
                 height={300}
                 options={{
@@ -558,9 +664,11 @@ class App extends React.Component {
                   tooltips: {
                     callbacks: {
                       label: function(tooltipItem, data) {
-												let label = data.labels[tooltipItem.index]
-												let value = window.addCommas(data.datasets[0].data[tooltipItem.index].toString())
-												return label + ': Rp. ' + value
+                        let label = data.labels[tooltipItem.index];
+                        let value = window.addCommas(
+                          data.datasets[0].data[tooltipItem.index].toString(),
+                        );
+                        return label + ': Rp. ' + value;
                       },
                     },
                   },
@@ -569,7 +677,11 @@ class App extends React.Component {
             )}
             {this.state.spendingByCategoryChartType === 'Bar' && (
               <Bar
-                data={this.state.pieData[this.state.pieDataCurrentRange]}
+                data={
+                  this.state.spendingByCategoryData[
+                    this.state.spendingByCategoryDataCurrentRange
+                  ]
+                }
                 width={500}
                 height={300}
                 options={{
@@ -577,8 +689,10 @@ class App extends React.Component {
                   tooltips: {
                     callbacks: {
                       label: function(tooltipItem, data) {
-												let value = window.addCommas(data.datasets[0].data[tooltipItem.index].toString())
-												return 'Rp. ' + value
+                        let value = window.addCommas(
+                          data.datasets[0].data[tooltipItem.index].toString(),
+                        );
+                        return 'Rp. ' + value;
                       },
                     },
                   },
@@ -596,6 +710,87 @@ class App extends React.Component {
               />
             </div>
             <br />
+          </div>
+        )}
+        {this.state.incomingOutgoingEnabled && (
+          <div style={{marginBottom: 50, padding: 15}}>
+            <h4>Total Incoming vs Total Outgoing</h4>
+            <div style={{marginTop:'-15px', marginBottom:15, fontSize:11}}>Based on <a href="https://raw.githubusercontent.com/herpiko/jentor/master/src/categories.js">this classification</a></div>
+            {/*
+            <div style={{width: '300px', margin: '0 auto'}}>
+              <Dropdown
+                options={this.state.timeRangeKeys}
+                placeHolder="All (from beginning)"
+                onChange={selected => {
+                  this.setState({
+                    incomingOutgoingDataCurrentRange: selected.value,
+                  });
+                }}
+                value={this.state.incomingOutgoingDataCurrentRange}
+              />
+            </div>
+            <Bar
+              data={
+                this.state.incomingOutgoingData[
+                  this.state.incomingOutgoingDataCurrentRange
+                ]
+              }
+              options={{
+                tooltips: {
+                  callbacks: {
+                    label: function(tooltipItem, data) {
+                      let value = window.addCommas(
+                        data.datasets[0].data[tooltipItem.index].toString(),
+                      );
+                      return 'Rp. ' + value;
+                    },
+                  },
+                },
+                tooltips: {
+                  mode: 'index',
+                  intersect: false,
+                },
+                scales: {
+                  xAxes: [
+                    {
+                      stacked: true,
+                    },
+                  ],
+                  yAxes: [
+                    {
+                      stacked: false,
+                    },
+                  ],
+                },
+              }}
+            />
+            <hr />
+						*/}
+            <Bar
+              data={this.state.incomingOutgoingStackedData}
+              options={{
+                tooltips: {
+                  callbacks: {
+                    label: function(tooltipItem, data) {
+                      let value = window.addCommas(tooltipItem.value);
+                      return 'Rp. ' + value;
+                    },
+                  },
+                },
+                scales: {
+                  xAxes: [
+                    {
+                      stacked: true,
+                    },
+                  ],
+                  yAxes: [
+                    {
+                      stacked: true,
+                    },
+                  ],
+                },
+              }}
+            />
           </div>
         )}
         <div>
@@ -618,9 +813,9 @@ class App extends React.Component {
             {this.state.rows &&
               this.state.rows.length > 0 &&
               this.state.tableViewEnabled && (
-                <div>
+                <div style={{margin:15}}>
                   <h4>Table</h4>
-                  The tabel could be rendered too slow on mobile browser. Please
+                  Table view does not work well on mobile browser, please
                   use a desktop browser instead.
                 </div>
               )}
