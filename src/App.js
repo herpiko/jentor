@@ -1,6 +1,6 @@
 import React from 'react';
 import pdfjsLib from 'pdfjs-dist/webpack';
-import logo from './spinner.gif';
+import spinner from './spinner.gif';
 import howtoImg from './howto.png';
 import async from 'async';
 import './App.css';
@@ -9,13 +9,24 @@ import sha256 from 'sha256';
 import 'react-tabulator/lib/styles.css';
 import 'tabulator-tables/dist/css/tabulator.min.css'; //import Tabulator stylesheet
 import {ReactTabulator} from 'react-tabulator';
-import {Doughnut, Pie, Bar} from 'react-chartjs-2';
+import {defaults, Pie, Bar} from 'react-chartjs-2';
 import rcolor from 'rcolor';
 import Dropdown from 'react-dropdown';
 import {BrowserView, MobileView} from 'react-device-detect';
 import 'react-dropdown/style.css';
 
 window.pdfjsLib = pdfjsLib;
+window.addCommas = function(nStr) {
+  nStr += '';
+  let x = nStr.split('.');
+  let x1 = x[0];
+  let x2 = x.length > 1 ? '.' + x[1] : '';
+  let rgx = /(\d+)(\d{3})/;
+  while (rgx.test(x1)) {
+    x1 = x1.replace(rgx, '$1' + ',' + '$2');
+  }
+  return x1 + x2;
+};
 
 const defaultState = {
   value: null,
@@ -118,8 +129,8 @@ const defaultState = {
   },
   pieDataCurrentRange: 'all',
   timeRangeKeys: [],
-  spendingByCategoryChartType: 'Doughnut',
-  chartTypes: ['Doughnut', 'Pie', 'Bar'],
+  spendingByCategoryChartType: 'Pie',
+  chartTypes: ['Pie', 'Bar'],
 };
 
 class App extends React.Component {
@@ -299,7 +310,7 @@ class App extends React.Component {
 
   processDb = data => {
     let count = 0;
-		let result = []
+    let result = [];
     async.eachSeries(
       data,
       (record, cb) => {
@@ -324,21 +335,21 @@ class App extends React.Component {
           record.dateTime.setMinutes(parseInt(record.time.split(':')[1], 10));
         }
         record.amount = parseInt(record.amount.replace(/,/g, ''), 10);
-				result.push(record)
-				cb()
+        result.push(record);
+        cb();
       },
       err => {
         console.log(err);
-          this.setState(
-            {
-              rows: result,
-              tableViewEnabled: true,
-              categorySpendingEnabled: true,
-            },
-            () => {
-							this.processChart()
-            },
-          );
+        this.setState(
+          {
+            rows: result,
+            tableViewEnabled: true,
+            categorySpendingEnabled: true,
+          },
+          () => {
+            this.processChart();
+          },
+        );
       },
     );
   };
@@ -456,7 +467,9 @@ class App extends React.Component {
     return (
       <div className="App">
         {this.state.loading && (
-          <img src={logo} className="App-logo" alt="logo" />
+          <div style={{marginTop:'40vh'}}>
+            <img src={spinner} className="App-logo" alt="logo" />
+          </div>
         )}
         {!this.state.done && (
           <header className="App-header">
@@ -481,7 +494,7 @@ class App extends React.Component {
                 <div className="App-secondary-landing">
                   <img src={howtoImg} className="App-howto" alt="howto" />
                   <div className="disclaimer">
-                    Jentor is originally an unsuccessfull submission for{' '}
+                    Jentor was originally an unsuccessful submission for{' '}
                     <a href="https://www.cocreate.id/cocreation-week-2020/hackathon/">
                       Jenius's CoCreation Week 2020 Hackathon
                     </a>
@@ -498,7 +511,7 @@ class App extends React.Component {
                     your device. We know and fully understand about privacy.
                     <br />
                     <br />
-                    Still unsure? Check our{' '}
+                    Unsure? Check our{' '}
                     <a href="https://github.com/herpiko/jentor">
                       source code here
                     </a>
@@ -525,28 +538,33 @@ class App extends React.Component {
         {this.state.categorySpendingEnabled && (
           <div style={{marginBottom: 50, padding: 15}}>
             <h4>Spending by Category</h4>
-            <Dropdown
-              options={this.state.timeRangeKeys}
-              placeHolder="All (from beginning)"
-              onChange={selected => {
-                this.setState({pieDataCurrentRange: selected.value});
-              }}
-              value={this.state.pieDataCurrentRange}
-            />
-            {this.state.spendingByCategoryChartType === 'Doughnut' && (
-              <Doughnut
-                data={this.state.pieData[this.state.pieDataCurrentRange]}
-                width={500}
-                height={300}
-                options={{maintainAspectRatio: false}}
+            <div style={{width: '300px', margin: '0 auto'}}>
+              <Dropdown
+                options={this.state.timeRangeKeys}
+                placeHolder="All (from beginning)"
+                onChange={selected => {
+                  this.setState({pieDataCurrentRange: selected.value});
+                }}
+                value={this.state.pieDataCurrentRange}
               />
-            )}
+            </div>
             {this.state.spendingByCategoryChartType === 'Pie' && (
               <Pie
                 data={this.state.pieData[this.state.pieDataCurrentRange]}
                 width={500}
                 height={300}
-                options={{maintainAspectRatio: false}}
+                options={{
+                  maintainAspectRatio: false,
+                  tooltips: {
+                    callbacks: {
+                      label: function(tooltipItem, data) {
+												let label = data.labels[tooltipItem.index]
+												let value = window.addCommas(data.datasets[0].data[tooltipItem.index].toString())
+												return label + ': Rp. ' + value
+                      },
+                    },
+                  },
+                }}
               />
             )}
             {this.state.spendingByCategoryChartType === 'Bar' && (
@@ -554,13 +572,23 @@ class App extends React.Component {
                 data={this.state.pieData[this.state.pieDataCurrentRange]}
                 width={500}
                 height={300}
-                options={{maintainAspectRatio: false}}
+                options={{
+                  maintainAspectRatio: false,
+                  tooltips: {
+                    callbacks: {
+                      label: function(tooltipItem, data) {
+												let value = window.addCommas(data.datasets[0].data[tooltipItem.index].toString())
+												return 'Rp. ' + value
+                      },
+                    },
+                  },
+                }}
               />
             )}
             <div style={{width: '120px', float: 'right'}}>
               <Dropdown
                 options={this.state.chartTypes}
-                placeHolder="Doughnut"
+                placeHolder="Pie"
                 onChange={selected => {
                   this.setState({spendingByCategoryChartType: selected.value});
                 }}
@@ -570,34 +598,34 @@ class App extends React.Component {
             <br />
           </div>
         )}
-        <h4>Spending by Category</h4>
-				<div>
-        	<BrowserView>
-        		{this.state.rows &&
-        		  this.state.rows.length > 0 &&
-        		  this.state.tableViewEnabled && (
-        		    <ReactTabulator
-        		      data={this.state.rows}
-        		      columns={this.state.columns}
-        		      tooltips={true}
-        		      layout={'fitData'}
-        		    />
-        		  )}
-        	</BrowserView>
-        	<MobileView>
-						{/* Use	desktop browser to see the table. */}
-        		{this.state.rows &&
-        		  this.state.rows.length > 0 &&
-        		  this.state.tableViewEnabled && (
-        		    <ReactTabulator
-        		      data={this.state.rows}
-        		      columns={this.state.columns}
-        		      tooltips={true}
-        		      layout={'fitData'}
-        		    />
-        		  )}
-        	</MobileView>
-				</div>
+        <div>
+          <BrowserView>
+            {this.state.rows &&
+              this.state.rows.length > 0 &&
+              this.state.tableViewEnabled && (
+                <div>
+                  <h4>Table</h4>
+                  <ReactTabulator
+                    data={this.state.rows}
+                    columns={this.state.columns}
+                    tooltips={true}
+                    layout={'fitData'}
+                  />
+                </div>
+              )}
+          </BrowserView>
+          <MobileView>
+            {this.state.rows &&
+              this.state.rows.length > 0 &&
+              this.state.tableViewEnabled && (
+                <div>
+                  <h4>Table</h4>
+                  The tabel could be rendered too slow on mobile browser. Please
+                  use a desktop browser instead.
+                </div>
+              )}
+          </MobileView>
+        </div>
       </div>
     );
   }
