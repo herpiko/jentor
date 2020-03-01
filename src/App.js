@@ -596,7 +596,7 @@ class App extends React.Component {
                   </div>
                   <div className="disclaimer">
                     <h4>Disclaimer</h4>
-                    This is still a work-in-progress and may contains bugs. Also there is no
+                    This is still a work-in-progress, may contains bugs, and only supports the English version of transaction history document. Also there is no
                     guarantee that the parser will always work as expected or the generated data will be in full accuracy. If
                     Jenius decided to change the PDF layout or column of the
                     report then Jentor may fail. The use or reliance of any information generated on this app is solely at your own risk. 

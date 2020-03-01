@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/jentor/static/css/main.6e85e43d.chunk.css",
-    "main.js": "/jentor/static/js/main.31e337bb.chunk.js",
+    "main.js": "/jentor/static/js/main.b4e45dcd.chunk.js",
     "runtime-main.js": "/jentor/static/js/runtime-main.23530029.js",
-    "static/css/2.126d8f66.chunk.css": "/jentor/static/css/2.126d8f66.chunk.css",
-    "static/js/2.bee267cd.chunk.js": "/jentor/static/js/2.bee267cd.chunk.js",
+    "static/css/2.3322a422.chunk.css": "/jentor/static/css/2.3322a422.chunk.css",
+    "static/js/2.1b37ea48.chunk.js": "/jentor/static/js/2.1b37ea48.chunk.js",
     "f88a54640fe662eaff23.worker.js": "/jentor/f88a54640fe662eaff23.worker.js",
     "f88a54640fe662eaff23.worker.js.LICENSE": "/jentor/f88a54640fe662eaff23.worker.js.LICENSE",
     "index.html": "/jentor/index.html",
-    "precache-manifest.2bc8a811401b1f7828190dda9b690d3f.js": "/jentor/precache-manifest.2bc8a811401b1f7828190dda9b690d3f.js",
+    "precache-manifest.e64a5e4b193305dfac12593913e3ccd1.js": "/jentor/precache-manifest.e64a5e4b193305dfac12593913e3ccd1.js",
     "service-worker.js": "/jentor/service-worker.js",
-    "static/js/2.bee267cd.chunk.js.LICENSE": "/jentor/static/js/2.bee267cd.chunk.js.LICENSE",
+    "static/js/2.1b37ea48.chunk.js.LICENSE": "/jentor/static/js/2.1b37ea48.chunk.js.LICENSE",
     "static/media/howto.png": "/jentor/static/media/howto.577ef68a.png",
     "static/media/incoming_outgoing.png": "/jentor/static/media/incoming_outgoing.52dcea3b.png",
     "static/media/spending_by_category.png": "/jentor/static/media/spending_by_category.b7a0b8c1.png",
@@ -20,9 +20,9 @@
   },
   "entrypoints": [
     "static/js/runtime-main.23530029.js",
-    "static/css/2.126d8f66.chunk.css",
-    "static/js/2.bee267cd.chunk.js",
+    "static/css/2.3322a422.chunk.css",
+    "static/js/2.1b37ea48.chunk.js",
     "static/css/main.6e85e43d.chunk.css",
-    "static/js/main.31e337bb.chunk.js"
+    "static/js/main.b4e45dcd.chunk.js"
   ]
 }
