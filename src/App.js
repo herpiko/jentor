@@ -583,6 +583,7 @@ class App extends React.Component {
                     style={{marginBottom: 50}}
                   />
                   <br/>
+                  <h2>About</h2>
                   <div className="disclaimer">
                     Jentor was originally an unsuccessful submission for{' '}
                     <a href="https://www.cocreate.id/cocreation-week-2020/hackathon/">
@@ -591,28 +592,30 @@ class App extends React.Component {
                     . See{' '}
                     <a href="https://github.com/herpiko/jentor/blob/master/jentor.pdf">
                       our proposal here
-                    </a>
-                    . This is still a work-in-progress and may contains bugs. Also there is no
-                    guarantee that the parser will always work as expected. If
-                    Jenius decided to change the PDF layout or column of the
-                    report then Jentor may fail.
+                    </a>.
                   </div>
                   <div className="disclaimer">
+                    <h4>Disclaimer</h4>
+                    This is still a work-in-progress and may contains bugs. Also there is no
+                    guarantee that the parser will always work as expected or the generated data will be in full accuracy. If
+                    Jenius decided to change the PDF layout or column of the
+                    report then Jentor may fail. The use or reliance of any information generated on this app is solely at your own risk. 
+										<br/><br/>
                     Our app does not and will not upload the PDF file to the
                     cloud. Your document will be parsed and processed in the
                     app/browser itself, hence zero user data will be out from
-                    your device. We know and fully understand about privacy.
-                    Unsure? Check our{' '}
+                    your device. We can not and will not try to obtain your data.
+                    We know and fully understand about privacy. <br/><br/>Unsure? Check our{' '}
                     <a href="https://github.com/herpiko/jentor">
                       source code here
                     </a>
                     .
                   </div>
                   <div className="disclaimer footer">
-                    Made in rush with &lt;3.
-                    <br />
-                    <br />
                     <span style={{fontSize: 11}}>
+                    	Made in rush with &lt;3.
+                    	<br />
+                    	<br />
                       Jenius is a trademark or a registered trademark of PT.
                       Bank Tabungan Pensiunan Nasional
                     </span>
