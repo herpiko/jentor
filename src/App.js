@@ -130,8 +130,8 @@ class App extends React.Component {
   parse = data => {
     let splitted = data.text.split('CategoryTransaction Type');
     splitted.splice(0, 1);
-    let text = splitted.join('CateoryTransaction Type');
-    let lines = text.split('\n');
+    let text = splitted.join('CategoryTransaction Type');
+    let lines = text.split("Disclaimer")[0].split('\n');
     let report = [];
     let isOnItem = false;
     let currentItem = {};
@@ -152,11 +152,9 @@ class App extends React.Component {
           case 3:
             if (lines[i].trim().indexOf(' | ') < 0) {
               currentItem.entityDetail = lines[i].trim();
-              currentItemFieldNumber++;
-              break;
-            } else {
-              currentItemFieldNumber++;
             }
+            currentItemFieldNumber++;
+            break;
           // eslint-disable-next-line
           case 4:
             currentItem.transactionNumber = lines[i].trim().split(' | ')[0];
