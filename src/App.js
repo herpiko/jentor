@@ -152,9 +152,11 @@ class App extends React.Component {
           case 3:
             if (lines[i].trim().indexOf(' | ') < 0) {
               currentItem.entityDetail = lines[i].trim();
+              currentItemFieldNumber++;
+              break;
+            } else {
+              currentItemFieldNumber++;
             }
-            currentItemFieldNumber++;
-            break;
           // eslint-disable-next-line
           case 4:
             currentItem.transactionNumber = lines[i].trim().split(' | ')[0];
