@@ -9,6 +9,7 @@
     "@testing-library/user-event": "^7.2.1",
     "chart.js": "^2.9.3",
     "core-js": "^2.5.7",
+    "date-fns": "^2.21.3",
     "pdf-parse": "^1.1.1",
     "pdfjs-dist": "^2.2.228",
     "pouchdb": "^7.1.1",
@@ -20,7 +21,8 @@
     "react-dropdown": "^1.6.4",
     "react-scripts": "3.3.0",
     "react-tabulator": "^0.10.3",
-    "sha256": "^0.2.0"
+    "sha256": "^0.2.0",
+    "universal-base64": "^2.1.0"
   },
   "scripts": {
     "start": "GENERATE_SOURCEMAP=false react-scripts start",

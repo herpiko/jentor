@@ -18,8 +18,11 @@ import Dropdown from 'react-dropdown';
 import {BrowserView, MobileView} from 'react-device-detect';
 import categories from './categories.js';
 import 'react-dropdown/style.css';
+import {format} from 'date-fns';
+import { decode, encode } from "universal-base64";
 
 window.pdfjsLib = pdfjsLib;
+
 window.addCommas = function(nStr) {
   nStr += '';
   let x = nStr.split('.');
@@ -42,6 +45,7 @@ const defaultState = {
   categorySpendingEnabled: false,
   incomingOutgoingEnabled: false,
   csvString: '',
+  csvFileName: 'transaction_history',
   monthMap: [
     'january',
     'februari',
@@ -306,7 +310,7 @@ class App extends React.Component {
         record.amount = parseInt(record.amount.replace(/,/g, ''), 10);
         if (!Number.isNaN(record.amount)) {
           result.push(record);
-          csvString += `${record._id},${record.dateTime.toISOString()},${record.transactionNumber},${record.mutationType},${record.category},${record.entityName},${record.entityDetail},${record.amount}\n`
+          csvString += `${record._id},${format(record.dateTime, 'yyyy-MM-dd HH:mm')},${record.transactionNumber},${record.mutationType},${record.category},${record.entityName},${record.entityDetail},${record.amount}\n`
         }
         cb();
       },
@@ -655,11 +659,6 @@ class App extends React.Component {
             </button>
           </div>
         )}
-        {this.state.done && (
-          <div>
-            <a href={'data:application/octet-stream,' + this.state.csvString} download="transaction_history.csv">Download CSV</a>
-          </div>
-        )}
         {/* Charts! */}
         {this.state.categorySpendingEnabled && (
           <div style={{marginBottom: 50, padding: 15}}>
@@ -826,6 +825,22 @@ class App extends React.Component {
               this.state.tableViewEnabled && (
                 <div>
                   <h4>Table</h4>
+                  <div>
+                    CSV file name: <input
+                      placeHolder="transaction_history"
+                      value={this.state.csvFileName}
+                      onChange={(e) => { 
+                        this.setState({csvFileName:e.target.value})
+                      }}
+                    >
+                    </input>
+                    &nbsp;&nbsp;
+                    <a
+                      href={'data:application/octet-stream;base64,' + encode(this.state.csvString)}
+                      download={this.state.csvFileName +'.csv'}
+                    >Download CSV</a>
+                  </div>
+                  <br/>
                   <ReactTabulator
                     data={this.state.rows}
                     columns={this.state.columns}
