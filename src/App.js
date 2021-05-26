@@ -856,6 +856,22 @@ class App extends React.Component {
               this.state.tableViewEnabled && (
                 <div style={{margin:15}}>
                   <h4>Table</h4>
+                  <div>
+                    CSV file name: <input
+                      placeHolder="transaction_history"
+                      value={this.state.csvFileName}
+                      onChange={(e) => { 
+                        this.setState({csvFileName:e.target.value})
+                      }}
+                    >
+                    </input>
+                    &nbsp;&nbsp;
+                    <a
+                      href={'data:application/octet-stream;base64,' + encode(this.state.csvString)}
+                      download={this.state.csvFileName +'.csv'}
+                    >Download CSV</a>
+                  </div>
+                  <br/>
                   Table view does not work well on mobile browser, please
                   use a desktop browser instead.
                 </div>
