@@ -8,28 +8,28 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/jentor/f88a54640fe662eaff23.worker.js.LICENSE"
   },
   {
-    "revision": "51bc3e990b6c2c74dc62c4ec2a406929",
+    "revision": "01bae2dd15999f330aa9a128ae8f0a71",
     "url": "/jentor/index.html"
   },
   {
-    "revision": "3770beebe0bd43a86891",
+    "revision": "5b5c865bd30d98f8d720",
     "url": "/jentor/static/css/2.3322a422.chunk.css"
   },
   {
-    "revision": "03681142e9942f47263e",
+    "revision": "75ffd6a0aedaf31b619f",
     "url": "/jentor/static/css/main.6e85e43d.chunk.css"
   },
   {
-    "revision": "3770beebe0bd43a86891",
-    "url": "/jentor/static/js/2.1b37ea48.chunk.js"
+    "revision": "5b5c865bd30d98f8d720",
+    "url": "/jentor/static/js/2.77bdc9c4.chunk.js"
   },
   {
     "revision": "69a4de9804cd3fa7714d3df03410e13e",
-    "url": "/jentor/static/js/2.1b37ea48.chunk.js.LICENSE"
+    "url": "/jentor/static/js/2.77bdc9c4.chunk.js.LICENSE"
   },
   {
-    "revision": "03681142e9942f47263e",
-    "url": "/jentor/static/js/main.7b4c09e1.chunk.js"
+    "revision": "75ffd6a0aedaf31b619f",
+    "url": "/jentor/static/js/main.e6b045b4.chunk.js"
   },
   {
     "revision": "2d56c2e043fbf23d0664",
