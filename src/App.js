@@ -12,7 +12,7 @@ import sha256 from 'sha256';
 import 'react-tabulator/lib/styles.css';
 import 'tabulator-tables/dist/css/tabulator.min.css'; //import Tabulator stylesheet
 import {ReactTabulator} from 'react-tabulator';
-import {defaults, Pie, Bar} from 'react-chartjs-2';
+import {Pie, Bar} from 'react-chartjs-2';
 import rcolor from 'rcolor';
 import Dropdown from 'react-dropdown';
 import {BrowserView, MobileView} from 'react-device-detect';
@@ -27,6 +27,7 @@ window.addCommas = function(nStr) {
   let x2 = x.length > 1 ? '.' + x[1] : '';
   let rgx = /(\d+)(\d{3})/;
   while (rgx.test(x1)) {
+    // eslint-disable-next-line
     x1 = x1.replace(rgx, '$1' + ',' + '$2');
   }
   return x1 + x2;
@@ -132,17 +133,17 @@ class App extends React.Component {
 
   }
   parse = data => {
+    // Some PDFs were generated with tab instead of space
+    data.text = data.text.replace(/\t/g, ' ');
     let splitted = data.text.split('CategoryTransaction Type');
     splitted.splice(0, 1);
     let text = splitted.join('CategoryTransaction Type');
-    let lines = text.split("Disclaimer")[0].split('\n');
+    let lines = text.split("Disclaimer")[0].split(/\r?\n/);
     let report = [];
     let isOnItem = false;
     let currentItem = {};
     let currentItemFieldNumber = 0;
-    let lastLineThatMatters = 0;
     for (let i in lines) {
-      //if (report.length > 16) break;
       if (isOnItem) {
         switch (currentItemFieldNumber) {
           case 1:
@@ -180,7 +181,6 @@ class App extends React.Component {
               report.push(currentItem);
             }
             currentItem = {};
-            lastLineThatMatters = i;
             break;
           default:
             // Do nothing
@@ -261,7 +261,12 @@ class App extends React.Component {
             ret.metaData = metaData;
             ret.numrender = counter;
             doc.destroy();
-            let data = this.parse(ret);
+            let data = null
+            try {
+              data = this.parse(ret);
+            } catch (err) {
+              alert('An error occured!');
+            }
             this.processDb(data);
           },
         );
@@ -272,7 +277,7 @@ class App extends React.Component {
   };
 
   processDb = data => {
-    let count = 0;
+    let count = -1;
     let result = [];
     let csvString = ''
     async.eachSeries(
