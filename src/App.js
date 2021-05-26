@@ -40,6 +40,7 @@ const defaultState = {
   tableViewEnabled: false,
   categorySpendingEnabled: false,
   incomingOutgoingEnabled: false,
+  csvString: '',
   monthMap: [
     'january',
     'februari',
@@ -127,6 +128,9 @@ class App extends React.Component {
         });
     });
   };
+  downloadCsv = () => {
+
+  }
   parse = data => {
     let splitted = data.text.split('CategoryTransaction Type');
     splitted.splice(0, 1);
@@ -169,10 +173,12 @@ class App extends React.Component {
             } else if (lines[i].trim().split(' ')[0] === '+') {
               currentItem.mutationType = 'debit';
             }
-            currentItem.amount = lines[i].trim().split(' ')[1];
             isOnItem = false;
             currentItemFieldNumber = 0;
-            report.push(currentItem);
+            currentItem.amount = lines[i].trim().split(' ')[1];
+            if (!Number.isNaN(currentItem.amount)) {
+              report.push(currentItem);
+            }
             currentItem = {};
             lastLineThatMatters = i;
             break;
@@ -268,6 +274,7 @@ class App extends React.Component {
   processDb = data => {
     let count = 0;
     let result = [];
+    let csvString = ''
     async.eachSeries(
       data,
       (record, cb) => {
@@ -292,13 +299,17 @@ class App extends React.Component {
           record.dateTime.setMinutes(parseInt(record.time.split(':')[1], 10));
         }
         record.amount = parseInt(record.amount.replace(/,/g, ''), 10);
-        result.push(record);
+        if (!Number.isNaN(record.amount)) {
+          result.push(record);
+          csvString += `${record._id},${record.dateTime.toISOString()},${record.transactionNumber},${record.mutationType},${record.category},${record.entityName},${record.entityDetail},${record.amount}\n`
+        }
         cb();
       },
       err => {
         console.log(err);
         this.setState(
           {
+            csvString: csvString,
             rows: result,
             tableViewEnabled: true,
             categorySpendingEnabled: true,
@@ -370,6 +381,7 @@ class App extends React.Component {
       let dateTime = new Date(this.state.rows[i].dateTime);
       let currentRange =
         dateTime.getFullYear() + '_' + this.state.monthMap[dateTime.getMonth()];
+      cat[currentRange] = cat[currentRange] || {}
       if (this.state.rows[i].mutationType === 'credit') {
         cat.all['totalOutgoing'] = cat.all['totalOutgoing'] || 0;
         cat.all['totalOutgoing'] += this.state.rows[i].amount;
@@ -537,6 +549,7 @@ class App extends React.Component {
                     type="file"
                     onChange={e => this.handleChange(e.target.files)}
                   />
+                  <p style={{fontSize:'11px'}}>The parser only supports English version of transaction history document</p>
                 </div>
                 <div
                   style={{
@@ -635,6 +648,11 @@ class App extends React.Component {
               }}>
               Reset
             </button>
+          </div>
+        )}
+        {this.state.done && (
+          <div>
+            <a href={'data:application/octet-stream,' + this.state.csvString} download="transaction_history.csv">Download CSV</a>
           </div>
         )}
         {/* Charts! */}
