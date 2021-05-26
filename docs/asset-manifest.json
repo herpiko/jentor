@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/jentor/static/css/main.6e85e43d.chunk.css",
-    "main.js": "/jentor/static/js/main.b4ebef0b.chunk.js",
+    "main.js": "/jentor/static/js/main.7b4c09e1.chunk.js",
     "runtime-main.js": "/jentor/static/js/runtime-main.23530029.js",
     "static/css/2.3322a422.chunk.css": "/jentor/static/css/2.3322a422.chunk.css",
     "static/js/2.1b37ea48.chunk.js": "/jentor/static/js/2.1b37ea48.chunk.js",
     "f88a54640fe662eaff23.worker.js": "/jentor/f88a54640fe662eaff23.worker.js",
     "f88a54640fe662eaff23.worker.js.LICENSE": "/jentor/f88a54640fe662eaff23.worker.js.LICENSE",
     "index.html": "/jentor/index.html",
-    "precache-manifest.d3f444a4cc780edd0a919ab5db89d171.js": "/jentor/precache-manifest.d3f444a4cc780edd0a919ab5db89d171.js",
+    "precache-manifest.98a1ac936c059079711365b2b351a9b3.js": "/jentor/precache-manifest.98a1ac936c059079711365b2b351a9b3.js",
     "service-worker.js": "/jentor/service-worker.js",
     "static/js/2.1b37ea48.chunk.js.LICENSE": "/jentor/static/js/2.1b37ea48.chunk.js.LICENSE",
     "static/media/howto.png": "/jentor/static/media/howto.577ef68a.png",
@@ -23,6 +23,6 @@
     "static/css/2.3322a422.chunk.css",
     "static/js/2.1b37ea48.chunk.js",
     "static/css/main.6e85e43d.chunk.css",
-    "static/js/main.b4ebef0b.chunk.js"
+    "static/js/main.7b4c09e1.chunk.js"
   ]
 }

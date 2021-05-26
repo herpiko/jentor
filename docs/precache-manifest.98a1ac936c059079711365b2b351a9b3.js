@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/jentor/f88a54640fe662eaff23.worker.js.LICENSE"
   },
   {
-    "revision": "6212ca30b95f5c98be3d184571aadd8f",
+    "revision": "51bc3e990b6c2c74dc62c4ec2a406929",
     "url": "/jentor/index.html"
   },
   {
@@ -16,7 +16,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/jentor/static/css/2.3322a422.chunk.css"
   },
   {
-    "revision": "a5f62fecec9e5b6ee596",
+    "revision": "03681142e9942f47263e",
     "url": "/jentor/static/css/main.6e85e43d.chunk.css"
   },
   {
@@ -28,8 +28,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/jentor/static/js/2.1b37ea48.chunk.js.LICENSE"
   },
   {
-    "revision": "a5f62fecec9e5b6ee596",
-    "url": "/jentor/static/js/main.b4ebef0b.chunk.js"
+    "revision": "03681142e9942f47263e",
+    "url": "/jentor/static/js/main.7b4c09e1.chunk.js"
   },
   {
     "revision": "2d56c2e043fbf23d0664",
